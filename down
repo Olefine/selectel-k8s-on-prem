@@ -1,0 +1,4 @@
+#!/bin/zsh
+
+echo "-- Terraform destroy"
+cd terraform && terraform plan -out plan -var-file variables/dev.tfvars -destroy && terraform apply plan

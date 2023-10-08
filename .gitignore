@@ -1,0 +1,10 @@
+.DS_Store
+.idea
+terraform/*.auto.tfvars
+terraform/.terraform
+terraform/plan
+
+ansible/hosts
+
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup

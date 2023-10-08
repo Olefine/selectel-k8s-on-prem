@@ -1,0 +1,14 @@
+- hosts: master
+  become: yes
+  tasks:
+    - name: Install ufw
+      package:
+        name: ufw
+        update_cache: true
+
+    - name: Create openvpn server
+      ansible.builtin.include_role:
+        name: openvpn
+      vars:
+        openvpn_client_local_path: "/Users/egorodov/dev/vpn"
+        openvpn_client_server: "{{ ansible_host }}"

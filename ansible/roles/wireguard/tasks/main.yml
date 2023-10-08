@@ -1,0 +1,78 @@
+---
+- name: Install WireGuard
+  package:
+    name: wireguard
+    state: present
+    update_cache: true
+
+- name: Check private key exists
+  stat:
+    path: /etc/wireguard/private.key
+  register: pv_key
+
+- name: Check public key exists
+  stat:
+    path: /etc/wireguard/public.key
+  register: pb_key
+
+- name: Generate server keys
+  shell: "wg genkey | tee /etc/wireguard/private.key | wg pubkey | tee /etc/wireguard/public.key"
+  when:
+    - not pb_key.stat.exists
+    - not pv_key.stat.exists
+
+- name: Generate peer keys
+  shell: "wg genkey | tee /etc/wireguard/{{ peer }}_private.key | wg pubkey | tee /etc/wireguard/{{ peer }}_public.key"
+
+- name: get wg private key
+  command: "cat /etc/wireguard/private.key"
+  register: wg_private_key
+
+- name: get wg public key
+  command: "cat /etc/wireguard/public.key"
+  register: wg_public_key
+
+- name: get peer public key
+  command:
+    cmd: cat /etc/wireguard/{{ peer }}_public.key
+  register: wg_peer_public_key
+
+- name: get peer private key
+  command:
+    cmd: cat /etc/wireguard/{{ peer }}_private.key
+  register: wg_peer_private_key
+
+- name: Allow ipv4 forwarding
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    sysctl_set: yes
+    reload: yes
+    state: present
+
+- name: Build wireguard config
+  template:
+    src: templates/wg0.conf.j2
+    dest: /etc/wireguard/wg0.conf
+  vars:
+    cidr: "{{ wg_server_cidr }}"
+    port: "{{ wg_server_port }}"
+    server_private_key: "{{ wg_private_key.stdout }}"
+    peer_public_key: "{{ wg_peer_public_key.stdout }}"
+    peer_cidr: "{{ wg_peer_cidr }}"
+
+- name: Generate client config
+  template:
+    src: templates/wg0_client.conf.j2
+    dest: /var/tmp/wg0_peer.conf
+  vars:
+    wg_client_pv_key: "{{ wg_peer_private_key.stdout }}"
+    wg_server_pb_key: "{{ wg_public_key.stdout }}"
+    wg_server_ip: "{{ ansible_host }}"
+
+- name: Enable wg service
+  systemd:
+    name: wg-quick@wg0.service
+    state: started
+    enabled: yes
+    daemon_reload: yes

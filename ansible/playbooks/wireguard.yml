@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: true
+  roles:
+    - role: user_add
+      vars:
+        user: "wireguard"
+    - role: wireguard
+      vars:
+        peer: "egorodov"

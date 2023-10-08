@@ -1,0 +1,9 @@
+[Interface]
+PrivateKey = {{ wg_client_pv_key }}
+Address = {{ wg_peer_cidr }}
+DNS = 8.8.8.8
+
+[Peer]
+PublicKey = {{ wg_server_pb_key }}
+Endpoint = {{ wg_server_ip }}:{{ wg_server_port }}
+AllowedIPs = 0.0.0.0/0

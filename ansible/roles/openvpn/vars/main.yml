@@ -1,0 +1,41 @@
+---
+# vars file for openvpn
+
+openvpn_port: 1194
+openvpn_proto: udp
+openvpn_auth: SHA512
+openvpn_cipher: AES-256-CBC
+
+openvpn_server_network: 10.8.0.0
+
+openvpn_packages:
+  - openvpn
+  - easy-rsa
+
+_openvpn_easyrsa_path:
+  default: /usr/share/easy-rsa/3
+  Debian: /usr/share/easy-rsa
+
+openvpn_easyrsa_path: "{{ _openvpn_easyrsa_path[ansible_os_family] | default(_openvpn_easyrsa_path['default']) }}"
+
+_openvpn_group:
+  default: nobody
+  Debian: nogroup
+  RedHat: openvpn
+
+_openvpn_configuration_directory:
+  default: /etc/openvpn/server
+  Debian: /etc/openvpn
+  RedHat-7: /etc/openvpn
+
+openvpn_configuration_directory: "{{ _openvpn_configuration_directory[ansible_os_family ~ '-' ~ ansible_distribution_major_version] | default(_openvpn_configuration_directory[ansible_os_family] | default(_openvpn_configuration_directory['default'] )) }}"
+
+openvpn_group: "{{ _openvpn_group[ansible_os_family] | default(_openvpn_group['default']) }}"
+
+_openvpn_service:
+  default: openvpn@server
+  RedHat-7: openvpn@server
+  RedHat: openvpn-server@server
+  Ubuntu: openvpn
+
+openvpn_service: "{{ _openvpn_service[ansible_os_family ~ '-' ~ ansible_distribution_major_version] | default(_openvpn_service[ansible_os_family] | default(_openvpn_service['default'] )) }}"

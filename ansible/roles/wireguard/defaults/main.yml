@@ -1,0 +1,4 @@
+---
+wg_server_cidr: '10.8.0.1/24'
+wg_server_port: 51820
+wg_peer_cidr: '10.8.0.2/32'

@@ -1,0 +1,16 @@
+#!/bin/zsh
+
+#echo "-- Running terraform"
+#cd terraform && terraform plan -out plan -var-file variables/dev.tfvars && terraform apply plan && cd ../
+
+echo "-- Ensure hosts reachable"
+cd ansible
+ansible -m wait_for_connection all
+
+echo "-- Running ansible"
+ansible-playbook playbooks/00-install-deps.yml
+ansible-playbook playbooks/10-master.yml
+ansible-playbook playbooks/20-worker.yml
+
+echo "-- Installing vpn"
+ansible-playbook playbooks/30-vpn.yml

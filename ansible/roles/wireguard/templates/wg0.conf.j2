@@ -1,0 +1,10 @@
+[Interface]
+PrivateKey = {{ server_private_key }}
+Address = {{ cidr }}
+ListenPort = {{ port }}
+PostUp = iptables -t nat -I POSTROUTING -o eth0 -j MASQUERADE
+PreDown = iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
+[Peer]
+PublicKey = {{ peer_public_key }}
+AllowedIPs = {{ wg_peer_cidr }}

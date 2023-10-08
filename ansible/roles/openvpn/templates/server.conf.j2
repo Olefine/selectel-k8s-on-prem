@@ -1,0 +1,32 @@
+{{ ansible_managed | comment }}
+
+port {{ openvpn_port }}
+proto {{ openvpn_proto }}
+dev tun
+
+ca /etc/openvpn/server/ca.crt
+cert /etc/openvpn/server/server.crt
+key /etc/openvpn/server/server.key
+dh /etc/openvpn/server/dh.pem
+tls-crypt /etc/openvpn/ta.key 1
+
+topology subnet
+server {{ openvpn_server_network }} 255.255.255.0
+push "redirect-gateway def1 bypass-dhcp"
+ifconfig-pool-persist ipp.txt
+
+auth {{ openvpn_auth }}
+cipher {{ openvpn_cipher }}
+
+user nobody
+group {{ openvpn_group }}
+
+persist-key
+persist-tun
+
+status openvpn-status.log
+log /var/log/openvpn/openvpn.log
+log-append /var/log/openvpn/openvpn.log
+
+verb 3
+explicit-exit-notify 1
